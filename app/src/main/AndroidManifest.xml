@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="lab.ubu.hello2" >
 
-    <uses-permission android:name="android.permission.READ_LOGS" /> <!--ruirui,Nov.21.2015-->
+    <uses-permission android:name="android.permission.READ_LOGS" /> <!-- ruirui,Nov.21.2015 -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
@@ -41,6 +41,10 @@
         </service>
         <service
             android:name=".Fibonacci2IntentService"
+            android:exported="false" >
+        </service>
+        <service
+            android:name=".MXplayerIntentService"
             android:exported="false" >
         </service>
     </application>

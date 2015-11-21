@@ -29,14 +29,7 @@ import java.util.Date;
 //import java.io.IOException;
 
 /************************************
- *
  * version2
- *
- * log information to sdcard. logBattery.txt
- *
- *
- * version1
- *
  * provide fibonacci, fibonacci2, prime,factor function.
  *
  */
@@ -75,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
     private Intent factor2;
     private Intent factor3;
     private Intent factor4;
+
+    private Intent MXplayer;
 
     private String logname="logBattery.txt";
 
@@ -177,6 +172,8 @@ public class MainActivity extends AppCompatActivity {
         factor3 = new Intent(this, FactorService.class);
         factor4 = new Intent(this, FactorService.class);
 
+        MXplayer = new Intent(this, MXplayerIntentService.class);
+
         startService(intentPri);
         startService(intentPri2);
 //        startService(intentPri3);
@@ -198,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
 //        startService(factor3);
 //        startService(factor4);
 
-
+        startService(MXplayer);
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
 //            @Override
