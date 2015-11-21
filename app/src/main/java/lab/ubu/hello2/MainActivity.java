@@ -29,7 +29,18 @@ import java.util.Date;
 //import java.io.IOException;
 
 /************************************
+ * version3
+ *
+ * mxplayer launch automatically
+ *
+ * 
  * version2
+ *
+ * log information to sdcard. logBattery.txt
+ *
+ *
+ * version1
+ *
  * provide fibonacci, fibonacci2, prime,factor function.
  *
  */
