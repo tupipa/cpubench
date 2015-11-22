@@ -1,6 +1,7 @@
 package lab.ubu.hello2;
 
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,25 +19,39 @@ import android.widget.TextView;
 import android.os.Environment;
 
 import java.io.*;
-import java.util.Date;
+import java.util.*;
 //
-//import java.io.BufferedReader;
-//import java.io.BufferedWriter;
-//import java.io.File;
-//import java.io.FileWriter;
-//import java.io.InputStreamReader;
-//import java.io.OutputStreamWriter;
-//import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.IOException;
+import java.util.regex.Pattern;
 
 /************************************
+ *
+ * version4
+ *
+ * -read frequency via "/sys/devices/system/cpu/"
+ *      --readCpuFreq()
+ *
+ * -change code layout: wrapped codes into methods:
+ *      --"logBatteryAndCpuFreq() " to log battery status and cpu freq
+ *      --"startCPUbench()" to reach 100% cpu load
+ *      --clear log format to be portable to excel format.
+ *
+ *
  * version3
  *
  * mxplayer launch automatically
  *
- * 
+ *
  * version2
  *
  * log information to sdcard. logBattery.txt
+ * -appendLog(String loginfo);
  *
  *
  * version1
@@ -45,7 +60,7 @@ import java.util.Date;
  *
  */
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity { //
     private TextView batteryTxt;
     private TextView batteryinfo;
     private TextView timestamp;
@@ -53,8 +68,14 @@ public class MainActivity extends AppCompatActivity {
     private int batteryVoltage;
     private int batteryScale;
     private int batteryStatus;
+    private int batteryTemp;
 
-    private String batteryvalue = "null";
+    private String batteryvalue = null, batteryString=null, timeString=null;
+
+    private int TIME_INTERVAL=6000;
+    private long time_old;
+
+
 
     private Intent intentFib;
     private Intent intentFib2;
@@ -83,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
     private Intent MXplayer;
 
     private String logname="logBattery.txt";
-
+    Thread timerThread = null;
     private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver(){
         @Override
         public void onReceive(Context ctxt, Intent intent) {
@@ -92,16 +113,35 @@ public class MainActivity extends AppCompatActivity {
             batteryVoltage=intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0);
             batteryScale=intent.getIntExtra(BatteryManager.EXTRA_SCALE, 0);
             batteryStatus=intent.getIntExtra(BatteryManager.EXTRA_STATUS, 0);
+            batteryTemp=intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0);
 
             batteryvalue = String.valueOf(level) + "%";
-            batteryTxt.setText(batteryvalue);
+
+            long currentTimeMills=System.currentTimeMillis();
+            timeString=String.valueOf(System.currentTimeMillis());
+
+//            batteryTxt.setText(batteryvalue);
+            System.out.println("System.currentTimeMillis()*" + System.currentTimeMillis());
 
 
-            System.out.println("mBatInfoReceiver: System.currentTimeMillis()*" + System.currentTimeMillis());
-            timestamp.setText(String.valueOf(System.currentTimeMillis()));
+            batteryString="\nBattery Left:\t" + batteryvalue +"\t Voltage:\t"+batteryVoltage
+                    +"\t Temp:\t"+batteryTemp+"\tStatus:\t"+batteryStatus + "\ttime:\t" + timeString;
 
-            appendLog("BatInfoReceiver: " + batteryvalue + "-" + timestamp.getText());
-            readLog();
+
+            // timestamp.setText(timeString);
+
+            // batteryinfo.setText(batteryString);
+
+
+//for(int i=0;i<10;i++){
+
+            logBatteryAndCpuFreq();
+//}
+
+            System.out.println("mBatInfoReceiver:" + batteryString);
+            // appendLog("BatInfoReceiver: " + batteryvalue + "-" + timestamp.getText());
+
+            // readLog();
         }
     };
 
@@ -111,52 +151,84 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main2);
 
         batteryTxt = (TextView) this.findViewById(R.id.batteryTxt);
-        batteryinfo =  (TextView) this.findViewById(R.id.batteryinfo);
-        timestamp =  (TextView) this.findViewById(R.id.timestamp);
+        //  batteryinfo =  (TextView) this.findViewById(R.id.batteryinfo);
+        //  timestamp =  (TextView) this.findViewById(R.id.timestamp);
         this.registerReceiver(this.mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        appendLog("abcefergtfergrghrtgtrt");
-        //readLog();
-        //System.exit(0);
+
+
+        //startMXPlayer();
+        time_old=System.currentTimeMillis();
+        startCPUbench();
+        appendLog("CPUbench started at " + time_old);
 //        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 //        setSupportActionBar(toolbar);
 
-      /*  intentFib= new Intent(this, FibonacciIntentService.class);
-        intentFib2= new Intent(this, FibonacciIntentService.class);
-
-        startService(intentFib);
-        startService(intentFib2);
-*/
-        if (! batteryTxt.getText().toString().equals(batteryvalue)){
-            batteryvalue = batteryTxt.getText().toString();
-            batteryTxt.setText(batteryvalue);
-            System.out.println("System.currentTimeMillis()*"+System.currentTimeMillis());
-            timestamp.setText(String.valueOf(System.currentTimeMillis()));
-
-//            try {
-//                Process process = Runtime.getRuntime().exec("logcat -d");
-//                BufferedReader bufferedReader = new BufferedReader(
-//                        new InputStreamReader(process.getInputStream()));
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
 //
-//                StringBuilder log=new StringBuilder();
-//                String line;
-//                while ((line = bufferedReader.readLine()) != null) {
-//                    log.append(line);
-//                }
-//                TextView tv = (TextView)findViewById(R.id.textView1);
-//                tv.setText(log.toString());
-//            } catch (IOException e) {
+//                System.out.println("*lelema:************************** mail button Clicked **************************");
+//                Snackbar.make(view, "The Battery Left: "+batteryTxt.getText()+"; Voltage:"+batteryVoltage
+//                        +"; Scale: "+batteryScale+"; Status: "+batteryStatus, Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//                System.out.println("*lelema:*The Battery left:" + batteryTxt.getText() + " ***********************");
+//
 //            }
+//        });
 
-            appendLog("Initial"+batteryvalue + "-"+ timestamp.getText());
+    }
 
+    public void logBatteryAndCpuFreq() {
+
+
+//        if (! batteryTxt.getText().toString().equals(batteryvalue)){
+
+
+        StringBuilder builder = new StringBuilder();
+
+        String logStr;
+
+
+        builder.append(batteryString);
+
+        builder.append("\t");
+        builder.append("CPU freqencies:\t");
+
+        String[] freqs=readCpuFreq();
+
+//            String freqStr=Arrays.toString(freqs);
+        for(String s : freqs) {
+//                s.trim();
+            builder.append(s);
+            builder.append("\t");
+//                System.out.println("*ruiqin: per freqency cpu" + s + " ***********************");
         }
 
 
-//        batteryTxt.setText("The Battery Left: "+batteryTxt.getText() + "; Voltage:" + batteryVoltage
-//                +"; Scale: "+batteryScale+"; Status: "+batteryStatus);
+        logStr= builder.toString();
 
 
-//        batteryinfo.setText("The Battery Left: "+batteryTxt.getText());
+        batteryTxt.setText(logStr);
+        System.out.println("*ruiqin: batinfo and all cpu frequencies:" + logStr + " ***********************");
+        appendLog(logStr);
+
+        // System.exit(0);
+
+//        }
+
+
+    }
+
+    public void startMXPlayer(){
+
+        MXplayer = new Intent(this, MXplayerIntentService.class);
+
+        startService(MXplayer);
+
+    }
+
+    public void startCPUbench(){
 
 
         System.out.println("*lelema:*start 1st prime **************************");
@@ -183,8 +255,6 @@ public class MainActivity extends AppCompatActivity {
         factor3 = new Intent(this, FactorService.class);
         factor4 = new Intent(this, FactorService.class);
 
-        MXplayer = new Intent(this, MXplayerIntentService.class);
-
         startService(intentPri);
         startService(intentPri2);
 //        startService(intentPri3);
@@ -206,22 +276,92 @@ public class MainActivity extends AppCompatActivity {
 //        startService(factor3);
 //        startService(factor4);
 
-        startService(MXplayer);
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//
-//                System.out.println("*lelema:************************** mail button Clicked **************************");
-//                Snackbar.make(view, "The Battery Left: "+batteryTxt.getText()+"; Voltage:"+batteryVoltage
-//                        +"; Scale: "+batteryScale+"; Status: "+batteryStatus, Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//                System.out.println("*lelema:*The Battery left:" + batteryTxt.getText() + " ***********************");
-//
-//            }
-//        });
+
+    }
+
+    private String[] readCpuFreq(){
+
+        String cpuMaxFreq = "";
+
+        //http://android-er.blogspot.com/2015/03/read-cpu-frequency-using-linux-command.html
+
+        Runtime runtime = Runtime.getRuntime();
+        int availableProcessors = runtime.availableProcessors();
+
+        File[] cpuFiles = getCPUs();
+//        System.out.println("ruiqin: number of cpu: " + cpuFiles.length);
+//        textNumOfCpu.setText("number of cpu: " + cpuFiles.length);
+
+        String[] freqList = new String[cpuFiles.length];
+        ;
+        for(int i=0; i<cpuFiles.length; i++) {
+
+            String path_scaling_cur_freq =
+                    cpuFiles[i].getAbsolutePath() + "/cpufreq/scaling_cur_freq";
+
+            String scaling_cur_freq = cmdCat(path_scaling_cur_freq);
+            if (scaling_cur_freq.equals("")) {
+                scaling_cur_freq = "0";
+            }
+//            System.out.println("ruiqin: read freq: cpu" + i + ":" + scaling_cur_freq + "--------------------------------");
+            freqList[i] = scaling_cur_freq;
+        }
+
+        return freqList;
+//        textMsg.setText(strFileList);
 
 
+    }
+
+    //run Linux command
+    //$ cat f
+    private String cmdCat(String f){
+
+        String[] command = {"cat", f};
+        StringBuilder cmdReturn = new StringBuilder();
+
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder(command);
+            Process process = processBuilder.start();
+
+            InputStream inputStream = process.getInputStream();
+            int c;
+
+            while ((c = inputStream.read()) != -1) {
+                cmdReturn.append((char) c);
+//                System.out.println("ruiqin: read from command:"+c);
+            }
+
+//            System.out.println("ruiqin: read from command:"+cmdReturn);
+
+            return cmdReturn.toString().trim();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Something Wrong";
+        }
+
+    }
+
+    /*
+     * Get file list of the pattern
+     * /sys/devices/system/cpu/cpu[0..9]
+     */
+    private File[] getCPUs(){
+
+        class CpuFilter implements FileFilter {
+            @Override
+            public boolean accept(File pathname) {
+                if(Pattern.matches("cpu[0-9]+", pathname.getName())) {
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        File dir = new File("/sys/devices/system/cpu/");
+        File[] files = dir.listFiles(new CpuFilter());
+        return files;
     }
 
 
@@ -315,7 +455,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             // opening the file for reading
             InputStream instream = new FileInputStream(sdcard+"/"+logname);
-           // InputStream instream = openFileInput(sdcard+"/"+logname);
+            // InputStream instream = openFileInput(sdcard+"/"+logname);
 
             // if file the available for reading
             if (instream != null) {
@@ -380,4 +520,5 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
 }
