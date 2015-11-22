@@ -14,42 +14,42 @@ import android.content.Context;
 public class FactorService extends IntentService {
     // TODO: Rename actions, choose action names that describe tasks that this
     // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
-    private static final String ACTION_FOO = "lab.ubu.hello2.action.FOO";
-    private static final String ACTION_BAZ = "lab.ubu.hello2.action.BAZ";
-
-    // TODO: Rename parameters
-    private static final String EXTRA_PARAM1 = "lab.ubu.hello2.extra.PARAM1";
-    private static final String EXTRA_PARAM2 = "lab.ubu.hello2.extra.PARAM2";
-
-    /**
-     * Starts this service to perform action Foo with the given parameters. If
-     * the service is already performing a task this action will be queued.
-     *
-     * @see IntentService
-     */
-    // TODO: Customize helper method
-    public static void startActionFoo(Context context, String param1, String param2) {
-        Intent intent = new Intent(context, FactorService.class);
-        intent.setAction(ACTION_FOO);
-        intent.putExtra(EXTRA_PARAM1, param1);
-        intent.putExtra(EXTRA_PARAM2, param2);
-        context.startService(intent);
-    }
-
-    /**
-     * Starts this service to perform action Baz with the given parameters. If
-     * the service is already performing a task this action will be queued.
-     *
-     * @see IntentService
-     */
-    // TODO: Customize helper method
-    public static void startActionBaz(Context context, String param1, String param2) {
-        Intent intent = new Intent(context, FactorService.class);
-        intent.setAction(ACTION_BAZ);
-        intent.putExtra(EXTRA_PARAM1, param1);
-        intent.putExtra(EXTRA_PARAM2, param2);
-        context.startService(intent);
-    }
+//    private static final String ACTION_FOO = "lab.ubu.hello2.action.FOO";
+//    private static final String ACTION_BAZ = "lab.ubu.hello2.action.BAZ";
+//
+//    // TODO: Rename parameters
+//    private static final String EXTRA_PARAM1 = "lab.ubu.hello2.extra.PARAM1";
+//    private static final String EXTRA_PARAM2 = "lab.ubu.hello2.extra.PARAM2";
+//
+////    /**
+//     * Starts this service to perform action Foo with the given parameters. If
+//     * the service is already performing a task this action will be queued.
+//     *
+//     * @see IntentService
+//     */
+//    // TODO: Customize helper method
+//    public static void startActionFoo(Context context, String param1, String param2) {
+//        Intent intent = new Intent(context, FactorService.class);
+//        intent.setAction(ACTION_FOO);
+//        intent.putExtra(EXTRA_PARAM1, param1);
+//        intent.putExtra(EXTRA_PARAM2, param2);
+//        context.startService(intent);
+//    }
+//
+//    /**
+//     * Starts this service to perform action Baz with the given parameters. If
+//     * the service is already performing a task this action will be queued.
+//     *
+//     * @see IntentService
+//     */
+//    // TODO: Customize helper method
+//    public static void startActionBaz(Context context, String param1, String param2) {
+//        Intent intent = new Intent(context, FactorService.class);
+//        intent.setAction(ACTION_BAZ);
+//        intent.putExtra(EXTRA_PARAM1, param1);
+//        intent.putExtra(EXTRA_PARAM2, param2);
+//        context.startService(intent);
+//    }
 
     public FactorService() {
         super("FactorService");
@@ -71,12 +71,12 @@ public class FactorService extends IntentService {
 
 //            int i = 100;
             while(true){
-                long factors = factor(10000);
+                long factors = factor(1000);
 
                 //Snackbar.make(view, "Fibnacci(1000):"+fib, Snackbar.LENGTH_LONG)
                 //       .setAction("Action", null).show();
                 //sleep(500);
-//                System.out.println("lelema: factor="+factors);
+                System.out.println("lelema: factor(1000)="+factors);
             }
         }
     }
@@ -86,21 +86,21 @@ public class FactorService extends IntentService {
         if (n==1) return 1;
         return n*factor(n-1);
     }
-    /**
-     * Handle action Foo in the provided background thread with the provided
-     * parameters.
-     */
-    private void handleActionFoo(String param1, String param2) {
-        // TODO: Handle action Foo
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    /**
-     * Handle action Baz in the provided background thread with the provided
-     * parameters.
-     */
-    private void handleActionBaz(String param1, String param2) {
-        // TODO: Handle action Baz
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
+//    /**
+//     * Handle action Foo in the provided background thread with the provided
+//     * parameters.
+//     */
+//    private void handleActionFoo(String param1, String param2) {
+//        // TODO: Handle action Foo
+//        throw new UnsupportedOperationException("Not yet implemented");
+//    }
+//
+//    /**
+//     * Handle action Baz in the provided background thread with the provided
+//     * parameters.
+//     */
+//    private void handleActionBaz(String param1, String param2) {
+//        // TODO: Handle action Baz
+//        throw new UnsupportedOperationException("Not yet implemented");
+//    }
 }

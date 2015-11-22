@@ -31,6 +31,12 @@ import java.io.IOException;
 import java.util.regex.Pattern;
 
 /************************************
+ * version 5
+ * -add WAKE_LOCK to prevent sleep while screen locked.
+ *
+ * -change code format
+ *      -- clear unused IntentService interface
+ *      --
  *
  * version4
  *
