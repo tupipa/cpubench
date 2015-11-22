@@ -76,7 +76,7 @@ public class FactorService extends IntentService {
                 //Snackbar.make(view, "Fibnacci(1000):"+fib, Snackbar.LENGTH_LONG)
                 //       .setAction("Action", null).show();
                 //sleep(500);
-                System.out.println("lelema: factor(1000)="+factors);
+//                System.out.println("lelema: factor(1000)="+factors);
             }
         }
     }
