@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/cpubench.iml" filepath="$PROJECT_DIR$/cpubench.iml" />
+      <module fileurl="file://$USER_HOME$/windisk/others/myprogram/cpubench/app/app.iml" filepath="$USER_HOME$/windisk/others/myprogram/cpubench/app/app.iml" />
+      <module fileurl="file://$USER_HOME$/windisk/others/myprogram/cpubench/cpubench.iml" filepath="$USER_HOME$/windisk/others/myprogram/cpubench/cpubench.iml" />
     </modules>
   </component>
 </project>

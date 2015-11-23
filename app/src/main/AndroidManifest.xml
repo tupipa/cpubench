@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.READ_LOGS" /> <!-- ruirui,Nov.21.2015 -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <application
         android:allowBackup="true"
