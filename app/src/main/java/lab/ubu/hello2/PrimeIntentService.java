@@ -12,6 +12,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -87,12 +91,12 @@ public class PrimeIntentService extends IntentService {
                 primes++;
                 if(primes%1000==0) {
                     current=SystemClock.elapsedRealtime();
-                    String log="*lelema: prime("+countInstance+"): wakelock="+useWakeLock+": "+ primes+" prime numbers calculated using "+(current-start)+"\tmilliseconds\n";
+                    String log="*lelema: prime("+countInstance+"): wakelock="+useWakeLock+": "+ primes+" prime numbers calculated; "+(current-start)+"\tmilliseconds; "+currentDateTime()+"\n";
                     System.out.println(log);
                     appendLog(log);
                     if(current-start>INTERVAL){
                         reachend=true;
-                        log="ruiqin:prime("+countInstance+") ends: prime has run for " +INTERVAL+" milliseconds. Now going to ends\n";
+                        log="ruiqin:prime("+countInstance+") ends: prime has run for " +INTERVAL+" milliseconds. "+currentDateTime()+"\n";
                         System.out.println(log);
                         appendLog(log);
                     }
@@ -100,6 +104,20 @@ public class PrimeIntentService extends IntentService {
             }
             num++;
         }
+
+    }
+    public String currentDateTime(){
+
+
+        Calendar cal = Calendar.getInstance();
+        Date currentLocalTime = cal.getTime();
+
+        DateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
+
+       return date.format(currentLocalTime);
+
+        //System.out.println(localTime);
+
 
     }
     public void appendLog(String text)
