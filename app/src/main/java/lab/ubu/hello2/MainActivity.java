@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -39,10 +41,21 @@ import java.util.regex.Pattern;
  * 	rarely happens for a long time, still periodically log the 
  * 	frequency and battery.
  * -TODO: 
- * -TODO: 
- * -change code format
- *      -- clear unused IntentService interface
- *      --
+ * -TODO:
+ *
+ * version 5.01: test version: WAKE_LOCK for prime (and onDestroy for main activity)
+ *  1, use WAKE_LOCK in prime services
+ *
+ *  2, add onDestroy() method to MainActivity and prime services. Release receiver in main and the lock in prime.
+ *
+ *  3, instead of while true loop, use 10 days/60 minutes timer to make the prime services running for a long time.
+ *
+ *  4, countInstance in prime, add appendLog() function for prime "logPrime.txt". For debug.
+ *
+ *  5, pass parameter to IntentService (prime, useWakeLock)
+ *
+ *  6, change code format
+ *      -- clear unused IntentService interface in prime
  *
  * version4
  *
@@ -117,6 +130,8 @@ public class MainActivity extends AppCompatActivity { //
 
     private String logname="logBattery.txt";
     Thread timerThread = null;
+   // PowerManager.WakeLock wl;
+    //PowerManager pm;
 
 
     private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver(){
@@ -132,6 +147,9 @@ public class MainActivity extends AppCompatActivity { //
             batteryvalue = String.valueOf(level) + "%";
 
             long currentTimeMills=System.currentTimeMillis();
+
+           // time_old=SystemClock.elapsedRealtime();
+
             timeString=String.valueOf(System.currentTimeMillis());
 
 //            batteryTxt.setText(batteryvalue);
@@ -167,13 +185,16 @@ public class MainActivity extends AppCompatActivity { //
         batteryTxt = (TextView) this.findViewById(R.id.batteryTxt);
         //  batteryinfo =  (TextView) this.findViewById(R.id.batteryinfo);
         //  timestamp =  (TextView) this.findViewById(R.id.timestamp);
+
+
+       // pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+       // wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "My Tag");
+       // wl.acquire();
+
         this.registerReceiver(this.mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 
-
         //startMXPlayer();
-        time_old=System.currentTimeMillis();
         startCPUbench();
-        appendLog("CPUbench started at " + time_old);
 //        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 //        setSupportActionBar(toolbar);
 
@@ -190,6 +211,80 @@ public class MainActivity extends AppCompatActivity { //
 //
 //            }
 //        });
+
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        long interval=System.currentTimeMillis()-time_old;
+        String log="\n*ruiqin: MainActivity of Hello2 is now in onDestroy()... running for "+ interval;
+        System.out.println(log);
+        appendLog(log);
+       // wl.release();
+       // System.out.println("*ruiqin: onDestroy(): wake lock realsed **************************");
+        this.unregisterReceiver(this.mBatInfoReceiver);
+        System.out.println("*ruiqin: onDestroy(): the battery receiver unregistered**************************");
+        super.onDestroy();
+    }
+
+
+
+    public void startCPUbench(){
+
+
+        time_old=System.currentTimeMillis();
+        appendLog("CPUbench started at " + time_old);
+
+        intentPri= new Intent(this, PrimeIntentService.class);
+        intentPri2= new Intent(this, PrimeIntentService.class);
+        intentPri3= new Intent(this, PrimeIntentService.class);
+        intentPri4= new Intent(this, PrimeIntentService.class);
+        intentPri5= new Intent(this, PrimeIntentService.class);
+
+        fibnacci1 = new Intent(this, FibonacciIntentService.class);
+        fibnacci2 = new Intent(this, FibonacciIntentService.class);
+        fibnacci3 = new Intent(this, FibonacciIntentService.class);
+        fibnacci4 = new Intent(this, FibonacciIntentService.class);
+
+        fibnacci21 = new Intent(this, Fibonacci2IntentService.class);
+        fibnacci22 = new Intent(this, Fibonacci2IntentService.class);
+        fibnacci23 = new Intent(this, Fibonacci2IntentService.class);
+        fibnacci24 = new Intent(this, Fibonacci2IntentService.class);
+
+        factor1 = new Intent(this, FactorService.class);
+        factor2 = new Intent(this, FactorService.class);
+        factor3 = new Intent(this, FactorService.class);
+        factor4 = new Intent(this, FactorService.class);
+
+        System.out.println("*lelema:*start 1st prime **************************");
+//        intentPri.putExtra("countInstance",1);
+        startService(intentPri);
+
+        System.out.println("*lelema:*start 2nd prime **************************");
+//        intentPri2.putExtra("countInstance",2);
+        intentPri2.putExtra("useWakeLock",true);
+        startService(intentPri2);
+//        System.out.println("*lelema:*start 3rd prime **************************");
+//        startService(intentPri3);
+//        startService(intentPri4);
+//        startService(intentPri5);
+//
+//        startService(fibnacci1);
+//        startService(fibnacci2);
+////        startService(fibnacci3);
+////        startService(fibnacci4);
+//
+//        startService(fibnacci21);
+//        startService(fibnacci22);
+////        startService(fibnacci23);
+////        startService(fibnacci24);
+//
+//        startService(factor1);
+//        startService(factor2);
+////        startService(factor3);
+////        startService(factor4);
+
 
     }
 
@@ -242,56 +337,6 @@ public class MainActivity extends AppCompatActivity { //
 
     }
 
-    public void startCPUbench(){
-
-
-        System.out.println("*lelema:*start 1st prime **************************");
-        intentPri= new Intent(this, PrimeIntentService.class);
-        System.out.println("*lelema:*start 2nd prime **************************");
-        intentPri2= new Intent(this, PrimeIntentService.class);
-        System.out.println("*lelema:*start 3rd prime **************************");
-        intentPri3= new Intent(this, PrimeIntentService.class);
-        intentPri4= new Intent(this, PrimeIntentService.class);
-        intentPri5= new Intent(this, PrimeIntentService.class);
-
-        fibnacci1 = new Intent(this, FibonacciIntentService.class);
-        fibnacci2 = new Intent(this, FibonacciIntentService.class);
-        fibnacci3 = new Intent(this, FibonacciIntentService.class);
-        fibnacci4 = new Intent(this, FibonacciIntentService.class);
-
-        fibnacci21 = new Intent(this, Fibonacci2IntentService.class);
-        fibnacci22 = new Intent(this, Fibonacci2IntentService.class);
-        fibnacci23 = new Intent(this, Fibonacci2IntentService.class);
-        fibnacci24 = new Intent(this, Fibonacci2IntentService.class);
-
-        factor1 = new Intent(this, FactorService.class);
-        factor2 = new Intent(this, FactorService.class);
-        factor3 = new Intent(this, FactorService.class);
-        factor4 = new Intent(this, FactorService.class);
-
-        startService(intentPri);
-        startService(intentPri2);
-//        startService(intentPri3);
-//        startService(intentPri4);
-//        startService(intentPri5);
-
-        startService(fibnacci1);
-        startService(fibnacci2);
-//        startService(fibnacci3);
-//        startService(fibnacci4);
-
-        startService(fibnacci21);
-        startService(fibnacci22);
-//        startService(fibnacci23);
-//        startService(fibnacci24);
-
-        startService(factor1);
-        startService(factor2);
-//        startService(factor3);
-//        startService(factor4);
-
-
-    }
 
     private String[] readCpuFreq(){
 
@@ -307,7 +352,7 @@ public class MainActivity extends AppCompatActivity { //
 //        textNumOfCpu.setText("number of cpu: " + cpuFiles.length);
 
         String[] freqList = new String[cpuFiles.length];
-        ;
+
         for(int i=0; i<cpuFiles.length; i++) {
 
             String path_scaling_cur_freq =
@@ -374,8 +419,8 @@ public class MainActivity extends AppCompatActivity { //
         }
 
         File dir = new File("/sys/devices/system/cpu/");
-        File[] files = dir.listFiles(new CpuFilter());
-        return files;
+        return dir.listFiles(new CpuFilter());
+//        return files;
     }
 
 
@@ -410,8 +455,8 @@ public class MainActivity extends AppCompatActivity { //
 //
 //        }
 
-        OutputStream outputStream=null;
-        OutputStreamWriter out =null;
+        OutputStream outputStream;
+        OutputStreamWriter out;
 
         try
         {
