@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 
 /************************************
  * version 5
- * -TODO: add WAKE_LOCK to prevent sleep while screen locked.
+ * -TODO: Rui branch: add WAKE_LOCK to prevent sleep while screen locked.
  * -TODO: when start cpu bench: log the real time format at start; 
  * 	add /n to make the start message one line;
  * -TODO: add clock for logBattery options: when battery broadcast 
