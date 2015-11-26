@@ -43,6 +43,32 @@ import java.util.regex.Pattern;
  * -TODO: 
  * -TODO:
  *
+ * version 5.10: add utility class with appenLog() and currentDataTime() method. Deploy wakelock in FactorService.
+ *
+ *  1.1, create utility class Utility(). It has static methods(vars) which all other classes could use them directly.
+ *  This allows reusing methods across different classes, avoiding duplicated methods.
+ *
+ *  1.2, in Utility: add 'void appendLog(text, filename)' to write 'text' to file 'filename' on sdcard.
+ *
+ *  1.3, in Utility: add 'String currentDataTime()' to get the current date and time in a String.
+ *
+ *  1.4, in Utility: add INTERVAL to control total run time for each service;
+ *                   add LOGINTERVAL to periodically logging for each service;
+ *
+ *  2.1, in FactorService: deploy wakelock.
+ *
+ *  2.2, in FactorService: use appendLog() and currentDataTime().
+ *
+ *  2.3, in FactorService: add INTERVAL to control total run time, add LOGINTERVAL to periodically logging.
+ *
+ *  2.4, in FactorService: clean unused IntentService interface in FactorService.
+ *
+ *  3.1, in MaiinActivity.logBatteryAndCPUFreq(): add currentDataTime to logBattery.txt.
+ *
+ *
+ * version 5.02: add current time to log in prime service.
+ *  -use Calendar.getInstance(); change prime Instance.
+ *
  * version 5.01: test version: WAKE_LOCK for prime (and onDestroy for main activity)
  *  1, use WAKE_LOCK in prime services
  *
@@ -153,7 +179,7 @@ public class MainActivity extends AppCompatActivity { //
             timeString=String.valueOf(System.currentTimeMillis());
 
 //            batteryTxt.setText(batteryvalue);
-            System.out.println("System.currentTimeMillis()*" + System.currentTimeMillis());
+//            System.out.println("System.currentTimeMillis()*" + System.currentTimeMillis());
 
 
             batteryString="\nBattery Left:\t" + batteryvalue +"\t Voltage:\t"+batteryVoltage
@@ -214,17 +240,19 @@ public class MainActivity extends AppCompatActivity { //
 
     }
 
-
     @Override
     protected void onDestroy() {
         long interval=System.currentTimeMillis()-time_old;
-        String log="\n*ruiqin: MainActivity of Hello2 is now in onDestroy()... running for "+ interval;
+        String log="\n*ruiqin: MainActivity is now in onDestroy() after running for "
+                + interval+"ms; Time is "+Utility.currentDateTime()+"\n";
         System.out.println(log);
         appendLog(log);
        // wl.release();
        // System.out.println("*ruiqin: onDestroy(): wake lock realsed **************************");
         this.unregisterReceiver(this.mBatInfoReceiver);
-        System.out.println("*ruiqin: onDestroy(): the battery receiver unregistered**************************");
+        log="*ruiqin: onDestroy(): the battery receiver unregistered at "+Utility.currentDateTime()+"\n";
+        System.out.println(log);
+        appendLog(log);
         super.onDestroy();
     }
 
@@ -234,28 +262,14 @@ public class MainActivity extends AppCompatActivity { //
 
 
         time_old=System.currentTimeMillis();
-        appendLog("CPUbench started at " + time_old);
+        appendLog("CPUbench started at " + time_old+"\tDate&Time:\t"+Utility.currentDateTime());
+
 
         intentPri= new Intent(this, PrimeIntentService.class);
         intentPri2= new Intent(this, PrimeIntentService.class);
         intentPri3= new Intent(this, PrimeIntentService.class);
         intentPri4= new Intent(this, PrimeIntentService.class);
         intentPri5= new Intent(this, PrimeIntentService.class);
-
-        fibnacci1 = new Intent(this, FibonacciIntentService.class);
-        fibnacci2 = new Intent(this, FibonacciIntentService.class);
-        fibnacci3 = new Intent(this, FibonacciIntentService.class);
-        fibnacci4 = new Intent(this, FibonacciIntentService.class);
-
-        fibnacci21 = new Intent(this, Fibonacci2IntentService.class);
-        fibnacci22 = new Intent(this, Fibonacci2IntentService.class);
-        fibnacci23 = new Intent(this, Fibonacci2IntentService.class);
-        fibnacci24 = new Intent(this, Fibonacci2IntentService.class);
-
-        factor1 = new Intent(this, FactorService.class);
-        factor2 = new Intent(this, FactorService.class);
-        factor3 = new Intent(this, FactorService.class);
-        factor4 = new Intent(this, FactorService.class);
 
         System.out.println("*lelema:*start 1st prime **************************");
 //        intentPri.putExtra("countInstance",1);
@@ -269,6 +283,35 @@ public class MainActivity extends AppCompatActivity { //
 //        startService(intentPri3);
 //        startService(intentPri4);
 //        startService(intentPri5);
+
+
+        factor1 = new Intent(this, FactorService.class);
+        factor2 = new Intent(this, FactorService.class);
+        factor3 = new Intent(this, FactorService.class);
+        factor4 = new Intent(this, FactorService.class);
+
+        factor1.putExtra("useWakeLock", true);
+        startService(factor1);
+
+        factor2.putExtra("useWakeLock", false);
+        startService(factor2);
+//        startService(factor3);
+//        startService(factor4);
+
+
+
+
+
+        fibnacci1 = new Intent(this, FibonacciIntentService.class);
+        fibnacci2 = new Intent(this, FibonacciIntentService.class);
+        fibnacci3 = new Intent(this, FibonacciIntentService.class);
+        fibnacci4 = new Intent(this, FibonacciIntentService.class);
+
+        fibnacci21 = new Intent(this, Fibonacci2IntentService.class);
+        fibnacci22 = new Intent(this, Fibonacci2IntentService.class);
+        fibnacci23 = new Intent(this, Fibonacci2IntentService.class);
+        fibnacci24 = new Intent(this, Fibonacci2IntentService.class);
+
 //
 //        startService(fibnacci1);
 //        startService(fibnacci2);
@@ -279,12 +322,6 @@ public class MainActivity extends AppCompatActivity { //
 //        startService(fibnacci22);
 ////        startService(fibnacci23);
 ////        startService(fibnacci24);
-//
-//        startService(factor1);
-//        startService(factor2);
-////        startService(factor3);
-////        startService(factor4);
-
 
     }
 
@@ -314,12 +351,12 @@ public class MainActivity extends AppCompatActivity { //
 //                System.out.println("*ruiqin: per freqency cpu" + s + " ***********************");
         }
 
+        builder.append(Utility.currentDateTime()+"\t");
 
         logStr= builder.toString();
 
-
         batteryTxt.setText(logStr);
-        System.out.println("*ruiqin: batinfo and all cpu frequencies:" + logStr + " ***********************");
+        System.out.println("*ruiqin: batinfo and all cpu frequencies:" + logStr);
         appendLog(logStr);
 
         // System.exit(0);
@@ -427,80 +464,81 @@ public class MainActivity extends AppCompatActivity { //
     public void appendLog(String text)
 
     {
+        Utility.appendLog(text,logname);
 //        String logname="abc.txt";
-        File sdcard = Environment.getExternalStorageDirectory();
-        File logFile = new File(sdcard,logname);
-
-        if (!logFile.exists())
-        {
-            System.out.println("*lelema(main):cannot read "+sdcard+"/"+logname+" **************************");
-            //System.exit(0);
-            try
-            {
-                logFile.createNewFile();
-
-                System.out.println("*lelema(main): create "+sdcard+"/"+logname+"succeed**************************");
-                //System.exit(0);
-            }
-            catch (IOException e)
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-//        else{
+//        File sdcard = Environment.getExternalStorageDirectory();
+//        File logFile = new File(sdcard,logname);
 //
-////            System.out.println("*lelema(main): read " + sdcard + "/" + logname + " succeed **************************");
+//        if (!logFile.exists())
+//        {
+//            System.out.println("*lelema(main):cannot read "+sdcard+"/"+logname+" **************************");
 //            //System.exit(0);
+//            try
+//            {
+//                logFile.createNewFile();
 //
-//        }
-
-        OutputStream outputStream;
-        OutputStreamWriter out;
-
-        try
-        {
-
-
-            System.out.println("*lelema(main): start to streaming for "+sdcard+"/"+logname+"**************************");
-            outputStream = new FileOutputStream(sdcard+"/"+logname,true);
-            //outputStream = openFileOutput(sdcard+"/"+logname,Context.MODE_APPEND);
-
-
-//            System.out.println("*lelema(main): done creating FileOutputStream "+sdcard+"/"+logname+" succeed **************************");
-
-            out = new OutputStreamWriter(outputStream);
-
-//            System.out.println("*lelema(main): done creating outstream"+sdcard+"/"+logname+" succeed **************************");
-
-            out.write(text);
-
-            System.out.println("*lelema(main): done writing " + sdcard + "/" + logname + " **************************");
-            System.out.println("*lelema(main): done writing " + text + " **************************");
-
-            //out.flush();
-            out.close();
-
-            //BufferedWriter for performance, true to set append to file flag
-//            BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true));
-//            System.out.println("write to the log in Nexus 4");
-//            buf.append(text);
-//            buf.newLine();
-//            buf.close();
-        }
-        catch (IOException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            System.out.println("*lelema(main): failed to write "+sdcard+"/"+logname+" **************************");
-            System.exit(0);
-
-        }
-//        finally {
-//            if (out != null) {
-//                out.close();
+//                System.out.println("*lelema(main): create "+sdcard+"/"+logname+"succeed**************************");
+//                //System.exit(0);
+//            }
+//            catch (IOException e)
+//            {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
 //            }
 //        }
+////        else{
+////
+//////            System.out.println("*lelema(main): read " + sdcard + "/" + logname + " succeed **************************");
+////            //System.exit(0);
+////
+////        }
+//
+//        OutputStream outputStream;
+//        OutputStreamWriter out;
+//
+//        try
+//        {
+//
+//
+//            System.out.println("*lelema(main): start to streaming for "+sdcard+"/"+logname+"**************************");
+//            outputStream = new FileOutputStream(sdcard+"/"+logname,true);
+//            //outputStream = openFileOutput(sdcard+"/"+logname,Context.MODE_APPEND);
+//
+//
+////            System.out.println("*lelema(main): done creating FileOutputStream "+sdcard+"/"+logname+" succeed **************************");
+//
+//            out = new OutputStreamWriter(outputStream);
+//
+////            System.out.println("*lelema(main): done creating outstream"+sdcard+"/"+logname+" succeed **************************");
+//
+//            out.write(text);
+//
+//            System.out.println("*lelema(main): done writing " + sdcard + "/" + logname + " **************************");
+//            System.out.println("*lelema(main): done writing " + text + " **************************");
+//
+//            //out.flush();
+//            out.close();
+//
+//            //BufferedWriter for performance, true to set append to file flag
+////            BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true));
+////            System.out.println("write to the log in Nexus 4");
+////            buf.append(text);
+////            buf.newLine();
+////            buf.close();
+//        }
+//        catch (IOException e)
+//        {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//            System.out.println("*lelema(main): failed to write "+sdcard+"/"+logname+" **************************");
+//            System.exit(0);
+//
+//        }
+////        finally {
+////            if (out != null) {
+////                out.close();
+////            }
+////        }
 
     }
 

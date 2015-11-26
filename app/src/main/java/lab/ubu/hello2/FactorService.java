@@ -3,53 +3,25 @@ package lab.ubu.hello2;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
+import android.os.PowerManager;
+import android.os.SystemClock;
 
 /**
- * An {@link IntentService} subclass for handling asynchronous task requests in
- * a service on a separate handler thread.
- * <p/>
- * TODO: Customize class - update intent actions, extra parameters and static
- * helper methods.
+ * compute factor recursively
  */
 public class FactorService extends IntentService {
-    // TODO: Rename actions, choose action names that describe tasks that this
-    // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
-//    private static final String ACTION_FOO = "lab.ubu.hello2.action.FOO";
-//    private static final String ACTION_BAZ = "lab.ubu.hello2.action.BAZ";
-//
-//    // TODO: Rename parameters
-//    private static final String EXTRA_PARAM1 = "lab.ubu.hello2.extra.PARAM1";
-//    private static final String EXTRA_PARAM2 = "lab.ubu.hello2.extra.PARAM2";
-//
-////    /**
-//     * Starts this service to perform action Foo with the given parameters. If
-//     * the service is already performing a task this action will be queued.
-//     *
-//     * @see IntentService
-//     */
-//    // TODO: Customize helper method
-//    public static void startActionFoo(Context context, String param1, String param2) {
-//        Intent intent = new Intent(context, FactorService.class);
-//        intent.setAction(ACTION_FOO);
-//        intent.putExtra(EXTRA_PARAM1, param1);
-//        intent.putExtra(EXTRA_PARAM2, param2);
-//        context.startService(intent);
-//    }
-//
-//    /**
-//     * Starts this service to perform action Baz with the given parameters. If
-//     * the service is already performing a task this action will be queued.
-//     *
-//     * @see IntentService
-//     */
-//    // TODO: Customize helper method
-//    public static void startActionBaz(Context context, String param1, String param2) {
-//        Intent intent = new Intent(context, FactorService.class);
-//        intent.setAction(ACTION_BAZ);
-//        intent.putExtra(EXTRA_PARAM1, param1);
-//        intent.putExtra(EXTRA_PARAM2, param2);
-//        context.startService(intent);
-//    }
+
+    public static int totalInstance=0;
+    private int countInstance=0;
+    //private long INTERVAL=864; //test
+    //private long INTERVAL=600000; //test 10 miniutes
+    //private long INTERVAL=3600000; //test 60 miniutes
+
+    private long INTERVAL=Utility.INTERVAL; //ten days in milliseconds; using
+    private int LOGINTERVAL=Utility.LOGINTERVAL; //interval time for periodically writing logs.
+    private  PowerManager pm;
+    private PowerManager.WakeLock wl;
+    private boolean useWakeLock=true;
 
     public FactorService() {
         super("FactorService");
@@ -58,49 +30,78 @@ public class FactorService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
-//            final String action = intent.getAction();
-//            if (ACTION_FOO.equals(action)) {
-//                final String param1 = intent.getStringExtra(EXTRA_PARAM1);
-//                final String param2 = intent.getStringExtra(EXTRA_PARAM2);
-//                handleActionFoo(param1, param2);
-//            } else if (ACTION_BAZ.equals(action)) {
-//                final String param1 = intent.getStringExtra(EXTRA_PARAM1);
-//                final String param2 = intent.getStringExtra(EXTRA_PARAM2);
-//                handleActionBaz(param1, param2);
-//            }
 
-//            int i = 100;
-            while(true){
-                long factors = factor(1000);
+            this.totalInstance++;
+            this.countInstance=totalInstance;
+            String log="*lelema:computeFactor("+countInstance+"): started."+Utility.currentDateTime();
+            System.out.println(log);
+            appendLog(log);
 
-                //Snackbar.make(view, "Fibnacci(1000):"+fib, Snackbar.LENGTH_LONG)
-                //       .setAction("Action", null).show();
-                //sleep(500);
-//                System.out.println("lelema: factor(1000)="+factors);
+            useWakeLock=intent.getBooleanExtra("useWakeLock",true);
+
+            if(useWakeLock){
+                pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+                wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "My Tag Factor WakeLock");
+                wl.acquire();
+                computeFactor();
+                wl.release();
+            }else{
+                computeFactor();
+            }
+        }
+    }
+
+    private void computeFactor(){
+        //            int i = 100;
+        long start, current, intervalStart;
+        start= SystemClock.elapsedRealtime();
+        intervalStart=start;
+        double runTime;
+        long i, num = 1, primes = 0;
+        long UpBound=Long.MAX_VALUE;
+        boolean reachend=false;
+
+        int testfactor=10000;
+        int countRounds=0;
+
+        while (!reachend) {
+
+            long factors = factor(testfactor);
+
+            countRounds++;
+
+            current=SystemClock.elapsedRealtime();
+
+            if(current-intervalStart>LOGINTERVAL){
+                String log="lelema: factor("+countInstance+")."+useWakeLock
+                        +" compute factor("+testfactor+") for\t"+countRounds+"\trounds in\t" +LOGINTERVAL+"\tms; "
+                        + Utility.currentDateTime()+"\n";
+
+                System.out.println(log);
+                appendLog(log);
+                if(current-start>INTERVAL){
+                    reachend=true;
+                    log="lelema: factor("+countInstance+") ends: totally run for " +INTERVAL+" milliseconds. "
+                            + Utility.currentDateTime()+"\n";
+                    System.out.println(log);
+                    appendLog(log);
+                }
+
+                //start another LOGINTERVAL to do logging after this interval.
+                intervalStart=current;
+                countRounds=0;
+
             }
         }
     }
     public long factor(int n){
-
         if (n==0) return 1;
         if (n==1) return 1;
         return n*factor(n-1);
     }
-//    /**
-//     * Handle action Foo in the provided background thread with the provided
-//     * parameters.
-//     */
-//    private void handleActionFoo(String param1, String param2) {
-//        // TODO: Handle action Foo
-//        throw new UnsupportedOperationException("Not yet implemented");
-//    }
-//
-//    /**
-//     * Handle action Baz in the provided background thread with the provided
-//     * parameters.
-//     */
-//    private void handleActionBaz(String param1, String param2) {
-//        // TODO: Handle action Baz
-//        throw new UnsupportedOperationException("Not yet implemented");
-//    }
+    private void appendLog(String text){
+        String filename="logFactor("+countInstance+")."+useWakeLock+".txt";
+        Utility.appendLog(text,filename);
+    }
+
 }
