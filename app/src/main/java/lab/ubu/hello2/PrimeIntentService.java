@@ -83,23 +83,23 @@ public class PrimeIntentService extends IntentService {
 
             if (i == num) {
                 primes++;
-                if(primes%1000==0) {
-                    current=SystemClock.elapsedRealtime();
-                    String log="*lelema: prime("+countInstance+"): wakelock="+useWakeLock+": "
-                            + primes+" prime numbers calculated using additional\t"
-                            +(current-intervalStart)+"\tmilliseconds; "
-                            +Utility.currentDateTime()+"\n";
-                    System.out.println(log);
-                    appendLog(log);
-                    if(current-start>INTERVAL){
-                        reachend=true;
-                        log="ruiqin:prime("+countInstance+") ends: prime has run more than " +INTERVAL+" milliseconds. "
-                                + Utility.currentDateTime()+"\n";
-                        System.out.println(log);
-                        appendLog(log);
-                    }
-                    intervalStart=current;
-                }
+//                if(primes%1000==0) {
+//                    current=SystemClock.elapsedRealtime();
+//                    String log="*lelema: prime("+countInstance+"): wakelock="+useWakeLock+": "
+//                            + primes+" prime numbers calculated using additional\t"
+//                            +(current-intervalStart)+"\tmilliseconds; "
+//                            +Utility.currentDateTime()+"\n";
+//                    System.out.println(log);
+//                    appendLog(log);
+//                    if(current-start>INTERVAL){
+//                        reachend=true;
+//                        log="ruiqin:prime("+countInstance+") ends: prime has run more than " +INTERVAL+" milliseconds. "
+//                                + Utility.currentDateTime()+"\n";
+//                        System.out.println(log);
+//                        appendLog(log);
+//                    }
+//                    intervalStart=current;
+//                }
             }
             num++;
         }

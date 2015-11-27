@@ -2,9 +2,13 @@ package lab.ubu.hello2;
 
 import android.os.Environment;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.text.DateFormat;
@@ -31,7 +35,6 @@ public class Utility {
         DateFormat date = new SimpleDateFormat("dd-MM-yyy HH:mm:ss z");
 
         return date.format(currentLocalTime);
-
 
     }
 
@@ -117,4 +120,58 @@ public class Utility {
 
     }
 
+
+    public static String readLog(String logFileName){
+        String logString=null;
+        String logname=logFileName;
+        File sdcard = Environment.getExternalStorageDirectory();
+
+        //trying opening the myFavourite.txt
+        try {
+            // opening the file for reading
+            InputStream instream = new FileInputStream(sdcard+"/"+logname);
+            // InputStream instream = openFileInput(sdcard+"/"+logname);
+
+            // if file the available for reading
+            if (instream != null) {
+                // prepare the file for reading
+                InputStreamReader inputreader = new InputStreamReader(instream);
+                BufferedReader buffreader = new BufferedReader(inputreader);
+
+                String line;
+
+                // reading every line of the file into the line-variable, on line at the time
+                try {
+                    while ((line = buffreader.readLine()) != null) {
+                        logString=line;
+                        System.out.println("*ruiqin(main): read from "+sdcard+"/"+logname+" **************************");
+                        System.out.println("*ruiqin(main): get: "+line+" **************************");
+                        System.exit(0);
+                    }
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                    System.out.println("*ruiqin(main): read from " + sdcard + "/" + logname + " failed !!! **************************");
+                    System.exit(0);
+                }
+
+            }
+
+            // closing the file again
+            try {
+                instream.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                System.out.println("*ruiqin(main): close " + sdcard + "/" + logname + " failed !!! **************************");
+            }
+        } catch (java.io.FileNotFoundException e) {
+
+            // ding something if the myFavourite.txt does not exits
+            e.printStackTrace();
+            System.out.println("*ruiqin(main): open " + sdcard + "/" + logname + " failed !!! **************************");
+        }
+
+        return logString;
+    }
 }

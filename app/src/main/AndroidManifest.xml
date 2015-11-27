@@ -26,11 +26,6 @@
 
 
         <service
-            android:name=".FibonacciServ"
-            android:enabled="true"
-            android:exported="true" >
-        </service>
-        <service
             android:name=".FibonacciIntentService"
             android:exported="false" >
         </service>

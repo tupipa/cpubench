@@ -13,12 +13,15 @@ public class FactorService extends IntentService {
 
     public static int totalInstance=0;
     private int countInstance=0;
+
     //private long INTERVAL=864; //test
     //private long INTERVAL=600000; //test 10 miniutes
     //private long INTERVAL=3600000; //test 60 miniutes
 
     private long INTERVAL=Utility.INTERVAL; //ten days in milliseconds; using
     private int LOGINTERVAL=Utility.LOGINTERVAL; //interval time for periodically writing logs.
+
+
     private  PowerManager pm;
     private PowerManager.WakeLock wl;
     private boolean useWakeLock=true;
@@ -27,15 +30,21 @@ public class FactorService extends IntentService {
         super("FactorService");
     }
 
+    /**
+     * control weaklock for FactorService
+     */
     @Override
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
 
             this.totalInstance++;
             this.countInstance=totalInstance;
+
+
             String log="*lelema:computeFactor("+countInstance+"): started."+Utility.currentDateTime();
             System.out.println(log);
             appendLog(log);
+
 
             useWakeLock=intent.getBooleanExtra("useWakeLock",true);
 
@@ -51,9 +60,13 @@ public class FactorService extends IntentService {
         }
     }
 
+    /**
+     * control time and appendLog() for Factor().
+     */
     private void computeFactor(){
-        //            int i = 100;
+
         long start, current, intervalStart;
+
         start= SystemClock.elapsedRealtime();
         intervalStart=start;
         double runTime;
@@ -73,15 +86,18 @@ public class FactorService extends IntentService {
             current=SystemClock.elapsedRealtime();
 
             if(current-intervalStart>LOGINTERVAL){
+
                 String log="lelema: factor("+countInstance+")."+useWakeLock
-                        +" compute factor("+testfactor+") for\t"+countRounds+"\trounds in\t" +LOGINTERVAL+"\tms; "
+                        +" compute factor("+testfactor+")=" + factors
+                        + " for\t"+countRounds+"\trounds in\t" +LOGINTERVAL+"\tms; "
                         + Utility.currentDateTime()+"\n";
 
                 System.out.println(log);
                 appendLog(log);
+
                 if(current-start>INTERVAL){
                     reachend=true;
-                    log="lelema: factor("+countInstance+") ends: totally run for " +INTERVAL+" milliseconds. "
+                    log="lelema: factor("+countInstance+") ends: totally run for " + (current-start) +" milliseconds. "
                             + Utility.currentDateTime()+"\n";
                     System.out.println(log);
                     appendLog(log);
@@ -94,6 +110,7 @@ public class FactorService extends IntentService {
             }
         }
     }
+
     public long factor(int n){
         if (n==0) return 1;
         if (n==1) return 1;
