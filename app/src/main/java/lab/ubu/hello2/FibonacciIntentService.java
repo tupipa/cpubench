@@ -54,7 +54,7 @@ public class FibonacciIntentService extends IntentService {
             this.countInstance=totalInstance;
 
 
-            String log="*ruiqin:computeFibonacci("+countInstance+"): started."+Utility.currentDateTime();
+            String log="*ruiqin:computeFibonacci("+countInstance+"): started."+Utility.currentDateTime()+"\n";
             System.out.println(log);
             appendLog(log);
 
@@ -79,7 +79,7 @@ public class FibonacciIntentService extends IntentService {
     private void computeFibonacci(){
         long start = System.currentTimeMillis();
         long intervalStart = start;
-        int i = 60;
+        int i = 45;
         int countRounds = 0;
         boolean reachend = false;
 
@@ -92,10 +92,10 @@ public class FibonacciIntentService extends IntentService {
             if(currentIntervalStart>LOGINTERVAL ){
                 String log = "ruiqin: fibonacci(" + countInstance+ ")." + useWakeLock
                         + "compute fibonacci(" + i + ")=" +fib
-                        + "for \t" + countRounds+ "\t rounds in" + currentIntervalStart+"\tms; "
+                        + "\t for " + countRounds+ " round(s) in\t" + currentIntervalStart+"\tms; "
                         + Utility.currentDateTime()+"\n";
 
-                System.out.println(log);
+//                System.out.println(log);
                 appendLog(log);
 
                 if((current - start) > INTERVAL){

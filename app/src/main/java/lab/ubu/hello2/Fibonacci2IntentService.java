@@ -45,7 +45,7 @@ public class Fibonacci2IntentService extends IntentService {
             this.countInstance=totalInstance;
 
 
-            String log="*ruiqin:computeFibonacci2("+countInstance+"): started."+Utility.currentDateTime();
+            String log="*ruiqin:computeFibonacci2("+countInstance+"): started."+Utility.currentDateTime()+"\n";
             System.out.println(log);
             appendLog(log);
 

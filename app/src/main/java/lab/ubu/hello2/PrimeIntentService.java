@@ -44,7 +44,10 @@ public class PrimeIntentService extends IntentService {
         if (intent != null) {
             this.totalInstance++;
             this.countInstance=totalInstance;
-            System.out.println("*lelema: computePrime("+countInstance+"): started");
+
+            String log="*lelema: computePrime("+countInstance+"): started"+Utility.currentDateTime()+"\n";
+            System.out.println(log);
+            appendLog(log);
 
             useWakeLock=intent.getBooleanExtra("useWakeLock",true);
 

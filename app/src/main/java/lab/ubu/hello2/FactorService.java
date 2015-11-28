@@ -41,7 +41,7 @@ public class FactorService extends IntentService {
             this.countInstance=totalInstance;
 
 
-            String log="*lelema:computeFactor("+countInstance+"): started."+Utility.currentDateTime();
+            String log="*lelema:computeFactor("+countInstance+"): started."+Utility.currentDateTime()+"\n";
             System.out.println(log);
             appendLog(log);
 
@@ -83,31 +83,31 @@ public class FactorService extends IntentService {
 
             countRounds++;
 
-            current=SystemClock.elapsedRealtime();
-
-            if(current-intervalStart>LOGINTERVAL){
-
-                String log="lelema: factor("+countInstance+")."+useWakeLock
-                        +" compute factor("+testfactor+")=" + factors
-                        + " for\t"+countRounds+"\trounds in\t" +LOGINTERVAL+"\tms; "
-                        + Utility.currentDateTime()+"\n";
-
-                System.out.println(log);
-                appendLog(log);
-
-                if(current-start>INTERVAL){
-                    reachend=true;
-                    log="lelema: factor("+countInstance+") ends: totally run for " + (current-start) +" milliseconds. "
-                            + Utility.currentDateTime()+"\n";
-                    System.out.println(log);
-                    appendLog(log);
-                }
-
-                //start another LOGINTERVAL to do logging after this interval.
-                intervalStart=current;
-                countRounds=0;
-
-            }
+//            current=SystemClock.elapsedRealtime();
+//
+//            if(current-intervalStart>LOGINTERVAL){
+//
+//                String log="lelema: factor("+countInstance+")."+useWakeLock
+//                        +" compute factor("+testfactor+")=" + factors
+//                        + " for\t"+countRounds+"\trounds in\t" +LOGINTERVAL+"\tms; "
+//                        + Utility.currentDateTime()+"\n";
+//
+//                System.out.println(log);
+//                appendLog(log);
+//
+//                if(current-start>INTERVAL){
+//                    reachend=true;
+//                    log="lelema: factor("+countInstance+") ends: totally run for " + (current-start) +" milliseconds. "
+//                            + Utility.currentDateTime()+"\n";
+//                    System.out.println(log);
+//                    appendLog(log);
+//                }
+//
+//                //start another LOGINTERVAL to do logging after this interval.
+//                intervalStart=current;
+//                countRounds=0;
+//
+//            }
         }
     }
 

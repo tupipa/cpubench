@@ -33,11 +33,20 @@ import java.io.IOException;
 import java.util.regex.Pattern;
 
 /************************************
+ * version 5.12
+ *
+ *  1. avoid periodically logging in Prime, Fib2, factor; Only log start point of them.
+ *  2, log periodically for Fib(41) as well as the start point.
+ *  3, In Prime, Fib, Fib2, Factor, each has only one instance of IntentService. Because multiple instances
+ *      for the same IntentServices are executed sequentially rather than concurrently.
+ *
  * version 5.11
+ *
  *  1. add WAKE_LOCK to Fibonacci and Fibonacci2.
- *  2. avoid logging in Prime, Factor, Fib2. Only log in Fib(60)
+ *  2. avoid logging in Prime, Fib2. Only log in Fib(60), Factor
  *  3. add readLog to Utility.
  *  4, clean mainactivity.appendLog() useless comments.
+ *  5, trigger Prime, Fib2, Fib(60), Factor; each with 2 IntentServices.
  *
  * version 5.10: add utility class with appenLog() and currentDataTime() method. Deploy wakelock in FactorService.
  *
@@ -124,29 +133,29 @@ public class MainActivity extends AppCompatActivity { //
 
 
 
-    private Intent intentFib;
-    private Intent intentFib2;
+//    private Intent intentFib;
+//    private Intent intentFib2;
 
     private Intent intentPri;
-    private Intent intentPri2;
-    private Intent intentPri3;
-    private Intent intentPri4;
-    private Intent intentPri5;
+//    private Intent intentPri2;
+//    private Intent intentPri3;
+//    private Intent intentPri4;
+//    private Intent intentPri5;
 
     private Intent fibnacci1;
-    private Intent fibnacci2;
-    private Intent fibnacci3;
-    private Intent fibnacci4;
+//    private Intent fibnacci2;
+//    private Intent fibnacci3;
+//    private Intent fibnacci4;
 
     private Intent fibnacci21;
-    private Intent fibnacci22;
-    private Intent fibnacci23;
-    private Intent fibnacci24;
+//    private Intent fibnacci22;
+//    private Intent fibnacci23;
+//    private Intent fibnacci24;
 
     private Intent factor1;
-    private Intent factor2;
-    private Intent factor3;
-    private Intent factor4;
+//    private Intent factor2;
+//    private Intent factor3;
+//    private Intent factor4;
 
     private Intent MXplayer;
 
@@ -258,22 +267,25 @@ public class MainActivity extends AppCompatActivity { //
 
 
         time_old=System.currentTimeMillis();
-        appendLog("CPUbench started at " + time_old+"\tDate&Time:\t"+Utility.currentDateTime());
+        String log="CPUbench started at " + time_old+"\tDate&Time:\t"+Utility.currentDateTime()+"\n";
+        System.out.println(log);
+        appendLog(log);
 
 
         intentPri= new Intent(this, PrimeIntentService.class);
-        intentPri2= new Intent(this, PrimeIntentService.class);
-        intentPri3= new Intent(this, PrimeIntentService.class);
-        intentPri4= new Intent(this, PrimeIntentService.class);
-        intentPri5= new Intent(this, PrimeIntentService.class);
+//        intentPri2= new Intent(this, PrimeIntentService.class);
+//        intentPri3= new Intent(this, PrimeIntentService.class);
+//        intentPri4= new Intent(this, PrimeIntentService.class);
+//        intentPri5= new Intent(this, PrimeIntentService.class);
 
-        System.out.println("*lelema:*start 1st prime **************************");
+//        System.out.println("*lelema:*start 1st prime **************************");
 //        intentPri.putExtra("countInstance",1);
+        intentPri.putExtra("useWakeLock", true);
         startService(intentPri);
 
-        System.out.println("*lelema:*start 2nd prime **************************");
-        intentPri2.putExtra("useWakeLock",true);
-        startService(intentPri2);
+//        System.out.println("*lelema:*start 2nd prime **************************");
+//        intentPri2.putExtra("useWakeLock",true);
+//        startService(intentPri2);
 //        System.out.println("*lelema:*start 3rd prime **************************");
 //        startService(intentPri3);
 //        startService(intentPri4);
@@ -281,15 +293,16 @@ public class MainActivity extends AppCompatActivity { //
 
 
         factor1 = new Intent(this, FactorService.class);
-        factor2 = new Intent(this, FactorService.class);
-        factor3 = new Intent(this, FactorService.class);
-        factor4 = new Intent(this, FactorService.class);
-
         factor1.putExtra("useWakeLock", true);
         startService(factor1);
 
-        factor2.putExtra("useWakeLock", false);
-        startService(factor2);
+//        factor2 = new Intent(this, FactorService.class);
+//        factor3 = new Intent(this, FactorService.class);
+//        factor4 = new Intent(this, FactorService.class);
+
+
+//        factor2.putExtra("useWakeLock", false);
+//        startService(factor2);
 //        startService(factor3);
 //        startService(factor4);
 
@@ -298,26 +311,27 @@ public class MainActivity extends AppCompatActivity { //
 
 
         fibnacci1 = new Intent(this, FibonacciIntentService.class);
-        fibnacci2 = new Intent(this, FibonacciIntentService.class);
-        fibnacci3 = new Intent(this, FibonacciIntentService.class);
-        fibnacci4 = new Intent(this, FibonacciIntentService.class);
-
-        fibnacci21 = new Intent(this, Fibonacci2IntentService.class);
-        fibnacci22 = new Intent(this, Fibonacci2IntentService.class);
-        fibnacci23 = new Intent(this, Fibonacci2IntentService.class);
-        fibnacci24 = new Intent(this, Fibonacci2IntentService.class);
-
         fibnacci1.putExtra("useWakeLock", true);
         startService(fibnacci1);
-        fibnacci2.putExtra("useWakeLock", true);
-        startService(fibnacci2);
+
+//        fibnacci2 = new Intent(this, FibonacciIntentService.class);
+//        fibnacci3 = new Intent(this, FibonacciIntentService.class);
+//        fibnacci4 = new Intent(this, FibonacciIntentService.class);
+
+        fibnacci21 = new Intent(this, Fibonacci2IntentService.class);
+        fibnacci21.putExtra("useWakeLock", true);
+        startService(fibnacci21);
+//        fibnacci22 = new Intent(this, Fibonacci2IntentService.class);
+//        fibnacci23 = new Intent(this, Fibonacci2IntentService.class);
+//        fibnacci24 = new Intent(this, Fibonacci2IntentService.class);
+
+//        fibnacci2.putExtra("useWakeLock", true);
+//        startService(fibnacci2);
 ////        startService(fibnacci3);
 ////        startService(fibnacci4);
 
-        fibnacci21.putExtra("useWakeLock", true);
-        startService(fibnacci21);
-        fibnacci22.putExtra("useWakeLock", true);
-        startService(fibnacci22);
+//        fibnacci22.putExtra("useWakeLock", true);
+//        startService(fibnacci22);
 ////        startService(fibnacci23);
 ////        startService(fibnacci24);
 
