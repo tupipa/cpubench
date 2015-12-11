@@ -2,6 +2,7 @@ package lab.ubu.hello2;
 
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -33,6 +34,22 @@ import java.io.IOException;
 import java.util.regex.Pattern;
 
 /************************************
+ * version 6 TODO: add memory usage monitor
+ *
+ * version 6.01
+ *
+ *  1, along with the battery info, add memory usage written to logBattery.txt.
+ *
+ *  2, add method:
+ *      getMemoryUsedMegs()---return used memory size in MB
+ *      getMemoryUsedPercentage()---return mem usage in %
+ *      getMemoryTotoal()---return total memory
+ *
+ *
+ *  3, unfinished methods: read memory info using exec-'dumpsys meminfo' in Utility().
+ *          problem: permission denied?
+ *
+ *
  * version 5.12
  *
  *  1. avoid periodically logging in Prime, Fib2, factor; Only log start point of them.
@@ -265,9 +282,11 @@ public class MainActivity extends AppCompatActivity { //
 
     public void startCPUbench(){
 
-
         time_old=System.currentTimeMillis();
-        String log="CPUbench started at " + time_old+"\tDate&Time:\t"+Utility.currentDateTime()+"\n";
+        String log="\nCPUbench started at " + time_old
+                    +"\tDate&Time:\t"+Utility.currentDateTime()
+                    +"\tTotal Memory(MB)\t"+getMemoryTotal()
+                    +"\n";
         System.out.println(log);
         appendLog(log);
 
@@ -362,10 +381,16 @@ public class MainActivity extends AppCompatActivity { //
         }
 
         builder.append(Utility.currentDateTime()+"\t");
+        //builder.append("MemUsage:\t"+Utility.getUsedMemorySize()+"\t");
+        builder.append("MemUsed(MB):\t"+getMemoryUsedMegs()+"\t");
+        builder.append("MemUsagePercentage:\t"+getMemoryUsedPercentage()+"\t");
+        //builder.append("\n"+Utility.cmdDumpsysMeminfo("lab.ubu.hello2"));
+        //builder.append("\n"+Utility.cmdDumpsysProcstats("--hours 3"));
 
         logStr= builder.toString();
 
         batteryTxt.setText(logStr);
+
         System.out.println("*ruiqin: batinfo and all cpu frequencies:" + logStr);
         appendLog(logStr);
 
@@ -419,34 +444,70 @@ public class MainActivity extends AppCompatActivity { //
 
     }
 
+    public double getMemoryUsedMegs(){
+        ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
+        ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        activityManager.getMemoryInfo(mi);
+        double usedMegs = (double)(mi.totalMem-mi.availMem) / 1048576.0;
+
+        //Percentage can be calculated for API 16+
+        //long percentAvail = mi.availMem / mi.totalMem;
+
+        return usedMegs;
+    }
+    public double getMemoryTotal(){
+        ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
+        ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        activityManager.getMemoryInfo(mi);
+        double totalMegs = (double)mi.totalMem / 1048576.0;
+
+        //Percentage can be calculated for API 16+
+        //long percentAvail = mi.availMem / mi.totalMem;
+
+        return totalMegs;
+    }
+
+    public double getMemoryUsedPercentage(){
+        ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
+        ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        activityManager.getMemoryInfo(mi);
+        long availableMegs = mi.availMem / 1048576L;
+
+        //Percentage can be calculated for API 16+
+        double percentAvail = (double)mi.availMem /(double)mi.totalMem;
+
+        return (1-percentAvail);
+    }
+
     //run Linux command
     //$ cat f
     private String cmdCat(String f){
 
-        String[] command = {"cat", f};
-        StringBuilder cmdReturn = new StringBuilder();
+//        String[] command = {"cat", f};
+//        StringBuilder cmdReturn = new StringBuilder();
+//
+//        try {
+//            ProcessBuilder processBuilder = new ProcessBuilder(command);
+//            Process process = processBuilder.start();
+//
+//            InputStream inputStream = process.getInputStream();
+//            int c;
+//
+//            while ((c = inputStream.read()) != -1) {
+//                cmdReturn.append((char) c);
+////                System.out.println("ruiqin: read from command:"+c);
+//            }
+//
+////            System.out.println("ruiqin: read from command:"+cmdReturn);
+//
+//            return cmdReturn.toString().trim();
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return "Something Wrong";
+//        }
 
-        try {
-            ProcessBuilder processBuilder = new ProcessBuilder(command);
-            Process process = processBuilder.start();
-
-            InputStream inputStream = process.getInputStream();
-            int c;
-
-            while ((c = inputStream.read()) != -1) {
-                cmdReturn.append((char) c);
-//                System.out.println("ruiqin: read from command:"+c);
-            }
-
-//            System.out.println("ruiqin: read from command:"+cmdReturn);
-
-            return cmdReturn.toString().trim();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "Something Wrong";
-        }
-
+        return Utility.cmdCat(f);
     }
 
     /*
@@ -469,7 +530,6 @@ public class MainActivity extends AppCompatActivity { //
         return dir.listFiles(new CpuFilter());
 //        return files;
     }
-
 
     public void appendLog(String text)
 
