@@ -22,10 +22,10 @@ import java.util.Date;
  */
 public class Utility {
 
-    public static long INTERVAL = 864; //for test
+    //public static long INTERVAL = 864; //for test
     //public static long INTERVAL=600000; // test 10 minutes
     //public static long INTERVAL=3600000; //test 60 miniutes
-    //public static long INTERVAL=864000000; //ten days in milliseconds
+    public static long INTERVAL=864000000; //ten days in milliseconds
     public static int LOGINTERVAL = 10000; //interval time for periodically writing logs.
 
     public static String currentDateTime() {

@@ -38,6 +38,12 @@ import java.util.regex.Pattern;
  *
  * version 6.01
  *
+ *  4, change log format in order to be used in latex:
+ *      a) delete column title space
+ *      b) delete %
+ *      c) using {} for datetime.
+ *      d) change MemUsedPercentage to percentage instead of numerical number in [0,1]
+ *
  *  1, along with the battery info, add memory usage written to logBattery.txt.
  *
  *  2, add method:
@@ -48,7 +54,6 @@ import java.util.regex.Pattern;
  *
  *  3, unfinished methods: read memory info using exec-'dumpsys meminfo' in Utility().
  *          problem: permission denied?
- *
  *
  * version 5.12
  *
@@ -192,7 +197,7 @@ public class MainActivity extends AppCompatActivity { //
             batteryStatus=intent.getIntExtra(BatteryManager.EXTRA_STATUS, 0);
             batteryTemp=intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0);
 
-            batteryvalue = String.valueOf(level) + "%";
+            batteryvalue = String.valueOf(level);
 
             long currentTimeMills=System.currentTimeMillis();
 
@@ -204,7 +209,7 @@ public class MainActivity extends AppCompatActivity { //
 //            System.out.println("System.currentTimeMillis()*" + System.currentTimeMillis());
 
 
-            batteryString="\nBattery Left:\t" + batteryvalue +"\t Voltage:\t"+batteryVoltage
+            batteryString="\nBatteryLeft:\t" + batteryvalue +"\t Voltage:\t"+batteryVoltage
                     +"\t Temp:\t"+batteryTemp+"\tStatus:\t"+batteryStatus + "\ttime:\t" + timeString;
 
 
@@ -368,7 +373,7 @@ public class MainActivity extends AppCompatActivity { //
         builder.append(batteryString);
 
         builder.append("\t");
-        builder.append("CPU freqencies:\t");
+        builder.append("CpuFreqencies:\t");
 
         String[] freqs=readCpuFreq();
 
@@ -380,7 +385,7 @@ public class MainActivity extends AppCompatActivity { //
 //                System.out.println("*ruiqin: per freqency cpu" + s + " ***********************");
         }
 
-        builder.append(Utility.currentDateTime()+"\t");
+        builder.append("{"+Utility.currentDateTime()+"}\t");
         //builder.append("MemUsage:\t"+Utility.getUsedMemorySize()+"\t");
         builder.append("MemUsed(MB):\t"+getMemoryUsedMegs()+"\t");
         builder.append("MemUsagePercentage:\t"+getMemoryUsedPercentage()+"\t");
@@ -476,7 +481,7 @@ public class MainActivity extends AppCompatActivity { //
         //Percentage can be calculated for API 16+
         double percentAvail = (double)mi.availMem /(double)mi.totalMem;
 
-        return (1-percentAvail);
+        return (1-percentAvail)*100;
     }
 
     //run Linux command
